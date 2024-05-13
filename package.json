@@ -5,8 +5,8 @@
 	"main": "index.js",
 	"scripts": {
 		"build": "npx tsc",
-		"dev": "nodemon app/index.ts --host 0.0.0.0",
-		"start": "node dist/app/index.js",
+		"dev": "nodemon backend/server.ts --host 0.0.0.0",
+		"start": "node dist/backend/server.js",
 		"lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
 		"clean": "rimraf dist coverage node_modules package-lock.json",
 		"format:write": "npx prettier --write .",

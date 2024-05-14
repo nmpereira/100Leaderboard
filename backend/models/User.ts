@@ -18,6 +18,10 @@ const UserSchema = new mongoose.Schema({
 		type: Boolean,
 		default: false,
 	},
+	messages_last_scraped_at: {
+		type: Date || null,
+		default: null,
+	},
 	created_at: {
 		type: Date,
 		default: Date.now,

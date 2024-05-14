@@ -1,7 +1,7 @@
 import axios from "axios";
 import dotenv from "dotenv";
 import { UserResponse } from "../types/UserTypes";
-import writeUsersToDb from "../src/writeToDb";
+import writeUsersToDb from "../helpers/writeUsersToDb";
 
 import sleep from "../helpers/sleep";
 import User from "../models/User";
@@ -39,6 +39,7 @@ const scrapeUsersAfter = async (): Promise<void> => {
 
 		if (users.length < 1) {
 			console.log("Finished scraping users!");
+			return;
 		}
 
 		await sleep({ min: 60, max: 100 });

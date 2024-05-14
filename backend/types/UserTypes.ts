@@ -12,3 +12,10 @@ export interface UserResponse {
 	banner_color: string | null;
 	clan: string | null;
 }
+
+export interface MessageSearchResponse {
+	analytics_id: string;
+	doing_deep_historical_index: boolean;
+	total_results: number;
+	results: [];
+}

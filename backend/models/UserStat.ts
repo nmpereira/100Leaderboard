@@ -6,7 +6,7 @@ const UserStatSchema = new mongoose.Schema({
 		required: true,
 		unique: true,
 	},
-	message_count: {
+	total_message_count: {
 		type: Number,
 		default: 0,
 	},
@@ -16,6 +16,6 @@ const UserStatSchema = new mongoose.Schema({
 	},
 });
 
-const UserStat = mongoose.model("User", UserStatSchema);
+const UserStat = mongoose.model("UserStat", UserStatSchema);
 
 export default UserStat;

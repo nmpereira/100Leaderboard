@@ -11,6 +11,7 @@ const writeUsersToDb = async (
 ): Promise<WriteUsersToDbResponse> => {
 	try {
 		if (users.length === 0) {
+			console.error(`No users provided to write to the database.`);
 			return {
 				success: false,
 				message: "No users to write to the database.",
@@ -33,6 +34,7 @@ const writeUsersToDb = async (
 		const insertedUsers = await User.bulkWrite(bulkOperations);
 
 		if (insertedUsers instanceof Error) {
+			console.error({ insertedUsers });
 			return {
 				success: false,
 				message: "Error saving users to the database.",

@@ -1,5 +1,4 @@
 import User from "../models/User";
-import UserStat from "../models/UserStat";
 import { MessageSearchResponse } from "../types/UserTypes";
 
 interface WriteMessagesToDbResponse {
@@ -26,10 +25,14 @@ const writeUsersToDb = async ({
 		}
 
 		// update UserStat with total_results
-		const userStat = await UserStat.updateOne(
+		const userStat = await User.updateOne(
 			{ disc_id: user },
-			{ messages_total: results.total_results },
-			{ upsert: true }
+			{
+				$set: {
+					total_message_count: results.total_results,
+					messages_last_scraped_at: new Date(),
+				},
+			}
 		);
 
 		if (userStat instanceof Error) {
@@ -37,20 +40,6 @@ const writeUsersToDb = async ({
 			return {
 				success: false,
 				message: "Error saving user stats to the database.",
-			};
-		}
-
-		// update User with messages_last_scraped_at
-		const userUpdate = await User.updateOne(
-			{ disc_id: user },
-			{ messages_last_scraped_at: new Date() }
-		);
-
-		if (userUpdate instanceof Error) {
-			console.error({ userUpdate });
-			return {
-				success: false,
-				message: "Error saving user messages to the database.",
 			};
 		}
 

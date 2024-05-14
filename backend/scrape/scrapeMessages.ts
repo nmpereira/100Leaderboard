@@ -11,28 +11,85 @@ const { GUILD_ID, DISCORD_TOKEN } = process.env;
 
 const getAUser = async (): Promise<string | null> => {
 	try {
-		// find Random User that wasnt scraped in the last 24 hours
-		const user = await User.aggregate([
+		const users = await User.aggregate([
 			{
 				$match: {
 					to_scrape: false,
-					// less than 24 hours ago or is null
 					$or: [
+						{ messages_last_scraped_at: null },
 						{
 							messages_last_scraped_at: {
 								$lt: new Date(Date.now() - 24 * 60 * 60 * 1000),
 							},
 						},
-						{ messages_last_scraped_at: null },
 					],
 				},
 			},
-			{ $sample: { size: 1 } },
+			{
+				$project: {
+					user: "$$ROOT",
+					weight: {
+						$cond: {
+							if: { $gte: ["$total_message_count", 10] },
+							then: {
+								$add: [
+									{
+										$multiply: [
+											{
+												$cond: {
+													if: "$messages_last_scraped_at",
+													then: {
+														$divide: [
+															1,
+															{
+																$subtract: [
+																	new Date(),
+																	"$messages_last_scraped_at",
+																],
+															},
+														],
+													},
+													else: 0,
+												},
+											},
+											2,
+										],
+									},
+									1,
+								],
+							}, // For total_message_count >= 10
+							else: 1, // For total_message_count < 10
+						},
+					},
+				},
+			},
 		]);
 
-		console.log({ user });
+		if (users.length < 1) {
+			console.log("No matching users found.");
+			return null;
+		}
 
-		return user[0].disc_id || null;
+		// Calculate the total sum of weights
+		const totalWeight = users.reduce((sum, user) => sum + user.weight, 0);
+
+		// Generate a random number within the total sum of weights
+		const randomWeight = Math.random() * totalWeight;
+
+		// Iterate through users, summing up weights until random number falls within a user's weight range
+		let cumulativeWeight = 0;
+		let selectedUser = null;
+		for (const user of users) {
+			cumulativeWeight += user.weight;
+			if (randomWeight <= cumulativeWeight) {
+				selectedUser = user;
+				break;
+			}
+		}
+
+		console.log("Selected user:", selectedUser);
+
+		return selectedUser ? selectedUser.disc_id : null;
 	} catch (err) {
 		console.error(err);
 		return null;
@@ -41,39 +98,49 @@ const getAUser = async (): Promise<string | null> => {
 
 const scrapeMessages = async (): Promise<void> => {
 	try {
-		const time_start = new Date().getTime();
-		const userToFetch = await getAUser();
+		// const time_start = new Date().getTime();
+		// const userToFetch = await getAUser();
 
-		if (!userToFetch) {
-			console.log("No users to scrape messages from.");
-			return;
-		}
+		findManyUsers();
+		return;
 
-		const baseUrl = `https://discord.com/api/v9/guilds/${GUILD_ID}/messages/search?author_id=${userToFetch}`;
+		// if (!userToFetch) {
+		// 	console.log("No users to scrape messages from.");
+		// 	return;
+		// }
 
-		const headers = {
-			authorization: `${DISCORD_TOKEN}`,
-		};
+		// const baseUrl = `https://discord.com/api/v9/guilds/${GUILD_ID}/messages/search?author_id=${userToFetch}`;
 
-		console.log(`Scraping messages for user ${userToFetch}`);
+		// const headers = {
+		// 	authorization: `${DISCORD_TOKEN}`,
+		// };
 
-		const response = (await axios.get(baseUrl, { headers })) as {
-			data: MessageSearchResponse;
-		};
+		// console.log(`Scraping messages for user ${userToFetch}`);
 
-		const results = response.data;
+		// const response = (await axios.get(baseUrl, { headers })) as {
+		// 	data: MessageSearchResponse;
+		// };
 
-		await writeMessagesToDb({ results, user: userToFetch });
+		// const results = response.data;
 
-		console.log(
-			`Scraped messages for user ${userToFetch} | Time taken: ${(new Date().getTime() - time_start) / 1000}s`
-		);
+		// await writeMessagesToDb({ results, user: userToFetch });
 
-		await sleep({ min: 5, max: 10 });
+		// console.log(
+		// 	`Scraped messages for user ${userToFetch} | Time taken: ${(new Date().getTime() - time_start) / 1000}s`
+		// );
 
-		await scrapeMessages();
+		// await sleep({ min: 5, max: 10 });
+
+		// await scrapeMessages();
 	} catch (err) {
 		console.error(err);
+	}
+};
+
+const findManyUsers = async (): Promise<void> => {
+	// run findAUser 10 times
+	for await (const _ of Array(10)) {
+		await getAUser();
 	}
 };
 

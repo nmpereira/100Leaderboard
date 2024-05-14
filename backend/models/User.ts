@@ -19,7 +19,11 @@ const UserSchema = new mongoose.Schema({
 		default: false,
 	},
 	messages_last_scraped_at: {
-		type: Date || null,
+		type: Date,
+		default: null,
+	},
+	total_message_count: {
+		type: Number,
 		default: null,
 	},
 	created_at: {

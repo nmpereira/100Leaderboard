@@ -11,85 +11,69 @@ const { GUILD_ID, DISCORD_TOKEN } = process.env;
 
 const getAUser = async (): Promise<string | null> => {
 	try {
-		const users = await User.aggregate([
+		const user = (await User.aggregate([
+			{
+				$addFields: {
+					priorityScore: {
+						$cond: [
+							{
+								$eq: ["$messages_last_scraped_at", null],
+							},
+							1000, // Assign a high score if messages_last_scraped_at is null
+							{
+								$add: [
+									100, // Base score
+									{
+										$cond: [
+											{
+												$gte: [
+													{
+														$subtract: [
+															new Date(),
+															"$messages_last_scraped_at",
+														],
+													},
+													36 * 60 * 60 * 1000, // 36 hours in milliseconds
+												],
+											},
+											0, // If messages_last_scraped_at is within 36 hours, no additional score
+											{
+												$multiply: [
+													"$total_message_count",
+													10,
+												], // Additional score based on total_message_count
+											},
+										],
+									},
+								],
+							},
+						],
+					},
+				},
+			},
 			{
 				$match: {
-					to_scrape: false,
+					to_scrape: "yes",
 					$or: [
 						{ messages_last_scraped_at: null },
 						{
 							messages_last_scraped_at: {
-								$lt: new Date(Date.now() - 24 * 60 * 60 * 1000),
+								$gte: new Date(
+									new Date().getTime() - 36 * 60 * 60 * 1000
+								), // More than 36 hours ago
 							},
 						},
 					],
 				},
 			},
 			{
-				$project: {
-					user: "$$ROOT",
-					weight: {
-						$cond: {
-							if: { $gte: ["$total_message_count", 10] },
-							then: {
-								$add: [
-									{
-										$multiply: [
-											{
-												$cond: {
-													if: "$messages_last_scraped_at",
-													then: {
-														$divide: [
-															1,
-															{
-																$subtract: [
-																	new Date(),
-																	"$messages_last_scraped_at",
-																],
-															},
-														],
-													},
-													else: 0,
-												},
-											},
-											2,
-										],
-									},
-									1,
-								],
-							}, // For total_message_count >= 10
-							else: 1, // For total_message_count < 10
-						},
-					},
-				},
+				$sample: { size: 1 },
 			},
-		]);
+		])) as InstanceType<typeof User>[];
 
-		if (users.length < 1) {
-			console.log("No matching users found.");
-			return null;
-		}
+		console.log("Selected user:", user);
 
-		// Calculate the total sum of weights
-		const totalWeight = users.reduce((sum, user) => sum + user.weight, 0);
-
-		// Generate a random number within the total sum of weights
-		const randomWeight = Math.random() * totalWeight;
-
-		// Iterate through users, summing up weights until random number falls within a user's weight range
-		let cumulativeWeight = 0;
-		let selectedUser = null;
-		for (const user of users) {
-			cumulativeWeight += user.weight;
-			if (randomWeight <= cumulativeWeight) {
-				selectedUser = user;
-				break;
-			}
-		}
-
-		console.log("Selected user:", selectedUser);
-
-		return selectedUser ? selectedUser.disc_id : null;
+		return user && user.length > 0 ? user[0].disc_id : null;
 	} catch (err) {
 		console.error(err);
 		return null;
@@ -98,49 +82,39 @@ const getAUser = async (): Promise<string | null> => {
 
 const scrapeMessages = async (): Promise<void> => {
 	try {
-		// const time_start = new Date().getTime();
-		// const userToFetch = await getAUser();
+		const time_start = new Date().getTime();
+		const userToFetch = await getAUser();
 
-		findManyUsers();
-		return;
+		if (!userToFetch) {
+			console.log("No users to scrape messages from.");
+			return;
+		}
 
-		// if (!userToFetch) {
-		// 	console.log("No users to scrape messages from.");
-		// 	return;
-		// }
+		const baseUrl = `https://discord.com/api/v9/guilds/${GUILD_ID}/messages/search?author_id=${userToFetch}`;
 
-		// const baseUrl = `https://discord.com/api/v9/guilds/${GUILD_ID}/messages/search?author_id=${userToFetch}`;
+		const headers = {
+			authorization: `${DISCORD_TOKEN}`,
+		};
 
-		// const headers = {
-		// 	authorization: `${DISCORD_TOKEN}`,
-		// };
+		console.log(`Scraping messages for user ${userToFetch}`);
 
-		// console.log(`Scraping messages for user ${userToFetch}`);
+		const response = (await axios.get(baseUrl, { headers })) as {
+			data: MessageSearchResponse;
+		};
 
-		// const response = (await axios.get(baseUrl, { headers })) as {
-		// 	data: MessageSearchResponse;
-		// };
+		const results = response.data;
 
-		// const results = response.data;
+		await writeMessagesToDb({ results, user: userToFetch });
 
-		// await writeMessagesToDb({ results, user: userToFetch });
+		console.log(
+			`Scraped messages for user ${userToFetch} | Time taken: ${(new Date().getTime() - time_start) / 1000}s`
+		);
 
-		// console.log(
-		// 	`Scraped messages for user ${userToFetch} | Time taken: ${(new Date().getTime() - time_start) / 1000}s`
-		// );
+		await sleep({ min: 5, max: 10 });
 
-		// await sleep({ min: 5, max: 10 });
-
-		// await scrapeMessages();
+		await scrapeMessages();
 	} catch (err) {
 		console.error(err);
-	}
-};
-
-const findManyUsers = async (): Promise<void> => {
-	// run findAUser 10 times
-	for await (const _ of Array(10)) {
-		await getAUser();
 	}
 };
 

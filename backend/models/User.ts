@@ -15,8 +15,10 @@ const UserSchema = new mongoose.Schema({
 		required: true,
 	},
 	to_scrape: {
-		type: Boolean,
-		default: false,
+		// can be yes, no, or never
+		type: String,
+		enum: ["yes", "no", "never"],
+		default: "no",
 	},
 	messages_last_scraped_at: {
 		type: Date,
@@ -25,6 +27,10 @@ const UserSchema = new mongoose.Schema({
 	total_message_count: {
 		type: Number,
 		default: null,
+	},
+	times_scraped: {
+		type: Number,
+		default: 0,
 	},
 	created_at: {
 		type: Date,

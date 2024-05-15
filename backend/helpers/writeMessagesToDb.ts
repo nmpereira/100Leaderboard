@@ -32,6 +32,7 @@ const writeUsersToDb = async ({
 					total_message_count: results.total_results,
 					messages_last_scraped_at: new Date(),
 				},
+				$inc: { times_scraped: 1 },
 			}
 		);
 

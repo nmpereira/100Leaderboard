@@ -1,9 +1,7 @@
-function App() {
-  return (
-    <>
-      <h2>Hello World</h2>
-    </>
-  );
-}
+import LeaderBoard from "./components/LeaderBoard/LeaderBoard";
+
+const App = () => {
+  return <LeaderBoard />;
+};
 
 export default App;

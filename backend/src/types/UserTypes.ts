@@ -19,3 +19,11 @@ export interface MessageSearchResponse {
 	total_results: number;
 	results: [];
 }
+
+export interface UserReturn {
+	disc_id: string;
+	username: string;
+	avatar: string;
+	total_message_count: number;
+	created_at: Date;
+}

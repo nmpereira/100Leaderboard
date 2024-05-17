@@ -1,9 +1,10 @@
 import dotenv from "dotenv";
 import express from "express";
-import scrapeUsersCron from "./cron/scrapeUsersCron";
-import connectDB from "./db/connectDB";
-import scrapeMessages from "./scrape/scrapeMessages";
-import routes from "./routes/routes";
+import cors from "cors";
+import connectDB from "./src/db/connectDB";
+import routes from "./src/routes/routes";
+import scrapeUsersCron from "./src/cron/scrapeUsersCron";
+import scrapeMessages from "./src/scrape/scrapeMessages";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -14,6 +15,12 @@ connectDB();
 // body parser middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(
+	cors({
+		origin: process.env.FRONTEND_URL,
+	})
+);
 
 app.use("/api", routes);
 

@@ -6,9 +6,12 @@ import { Center } from "./LeaderBoard.styled";
 
 const LeaderBoard = () => {
   const [users, setUsers] = useState<UserReturn[]>([]);
+  const leardBoardCutOff = 5;
 
   const fetchUsers = async () => {
-    const response = await fetch("http://localhost:5000/api/top?limit=999");
+    const response = await fetch(
+      `${import.meta.env.VITE_SERVER_URL}/api/top?limit=999`
+    );
     const data = await response.json();
     if (data.users) {
       setUsers(data.users);
@@ -23,13 +26,13 @@ const LeaderBoard = () => {
       <Center>
         {/* Top 5 users */}
         {users.length > 0 ? (
-          <LeaderBoardBar users={users.slice(0, 5)} />
+          <LeaderBoardBar users={users.slice(0, leardBoardCutOff)} />
         ) : (
-          <p>Quack....</p>
+          <p>loading....</p>
         )}
 
         {/* Rest of the users */}
-        <LeaderBoardTable users={users.slice(5)} />
+        <LeaderBoardTable users={users} leardBoardCutOff={leardBoardCutOff} />
       </Center>
     </>
   );

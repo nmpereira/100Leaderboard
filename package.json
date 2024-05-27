@@ -4,10 +4,17 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "init": "npm install && cd backend && npm install",
-    "dev:server": "cd backend && npm run dev"
+    "install:client": "cd frontend && npm install",
+    "install:server": "cd backend && npm install",
+    "install": "concurrently \"npm run install:client\" \"npm run install:server\"",
+    "dev:client": "cd frontend && npm run dev",
+    "dev:server": "cd backend && npm run dev",
+    "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\""
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
 }

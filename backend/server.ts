@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
+import morgan from "morgan";
 import connectDB from "./src/db/connectDB";
 import routes from "./src/routes/routes";
 import scrapeUsersCron from "./src/cron/scrapeUsersCron";
@@ -15,7 +16,7 @@ connectDB();
 // body parser middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(morgan("combined"));
 app.use(
 	cors({
 		origin: process.env.FRONTEND_URL,

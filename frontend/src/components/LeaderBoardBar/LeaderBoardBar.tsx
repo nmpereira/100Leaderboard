@@ -1,21 +1,16 @@
 import { UserReturn } from "../../../../backend/src/types/UserTypes";
-import { UserImage } from "../UserImage/UserImage";
+
+import { UserCard } from "./UserCard";
 
 type LeaderBoardBarProps = {
   users: UserReturn[];
 };
 export const LeaderBoardBar = ({ users }: LeaderBoardBarProps) => {
   return (
-    <>
-      {users.map((user) => (
-        // <StyledLeaderBoardBar key={user.disc_id}>
-        <div key={user.disc_id} className="flex items-center">
-          <UserImage user={user} />
-          <p>
-            {user.username} ({user.total_message_count || "N/A"})
-          </p>
-        </div>
+    <div className="flex flex-wrap items-center justify-center">
+      {users.map((user, index) => (
+        <UserCard user={user} rank={index + 1} key={user.disc_id} />
       ))}
-    </>
+    </div>
   );
 };

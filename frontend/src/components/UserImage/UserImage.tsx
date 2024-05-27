@@ -9,6 +9,7 @@ const UserImage = ({ user }: { user: UserReturn }) => {
           https://cdn.discordapp.com/avatars/${user.disc_id}/${user.avatar}.webp?size=48
           `}
           alt={user.username}
+          className="rounded-full mr-2"
         />
       ) : (
         <img
@@ -16,6 +17,7 @@ const UserImage = ({ user }: { user: UserReturn }) => {
           alt={user.username}
           height="48"
           width="48"
+          className="rounded-full mr-2"
         />
       )}
     </>

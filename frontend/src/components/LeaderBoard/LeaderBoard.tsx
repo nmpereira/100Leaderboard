@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { UserReturn } from "../../../../backend/src/types/UserTypes";
 import { LeaderBoardTable } from "../LeaderBoardTable/LeaderBoardTable";
 import { LeaderBoardBar } from "../LeaderBoardBar/LeaderBoardBar";
-import { Center } from "./LeaderBoard.styled";
 
 const LeaderBoard = () => {
   const [users, setUsers] = useState<UserReturn[]>([]);
@@ -23,7 +22,7 @@ const LeaderBoard = () => {
   }, []);
   return (
     <>
-      <Center>
+      <div className="flex flex-col items-center">
         {/* Top 5 users */}
         {users.length > 0 ? (
           <LeaderBoardBar users={users.slice(0, leardBoardCutOff)} />
@@ -33,7 +32,7 @@ const LeaderBoard = () => {
 
         {/* Rest of the users */}
         <LeaderBoardTable users={users} leardBoardCutOff={leardBoardCutOff} />
-      </Center>
+      </div>
     </>
   );
 };

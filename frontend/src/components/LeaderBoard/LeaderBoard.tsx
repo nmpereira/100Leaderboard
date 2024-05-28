@@ -4,7 +4,11 @@ import { LeaderBoardTable } from "../LeaderBoardTable/LeaderBoardTable";
 import { LeaderBoardBar } from "../LeaderBoardBar/LeaderBoardBar";
 import useWindowSize from "use-window-size-v2";
 
-const LeaderBoard = () => {
+interface LeaderBoardProps {
+  perPage: number;
+}
+
+const LeaderBoard = ({ perPage }: LeaderBoardProps) => {
   const { width } = useWindowSize();
   const [users, setUsers] = useState<UserReturn[]>([]);
   const [leardBoardCutOff, setLeardBoardCutOff] = useState(5);
@@ -13,7 +17,7 @@ const LeaderBoard = () => {
   const fetchUsers = async () => {
     setLoading(true);
     const response = await fetch(
-      `${import.meta.env.VITE_SERVER_URL}/api/top?limit=999`
+      `${import.meta.env.VITE_SERVER_URL}/api/top?limit=${perPage}`
     );
     // await new Promise((resolve) => setTimeout(resolve, 4000));
     const data = await response.json();
@@ -25,7 +29,7 @@ const LeaderBoard = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [perPage]);
 
   useEffect(() => {
     if (width && width < 784) {
@@ -43,6 +47,7 @@ const LeaderBoard = () => {
         ) : (
           <p>No users found</p>
         )}
+
         <div className="divider"></div>
         {/* Rest of the users */}
         <LeaderBoardTable users={users} leardBoardCutOff={leardBoardCutOff} />

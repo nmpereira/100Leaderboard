@@ -1,15 +1,17 @@
+import { useState } from "react";
 import Footer from "./components/Footer/Footer";
 import Header from "./components/Header/Header";
 import LeaderBoard from "./components/LeaderBoard/LeaderBoard";
 
 const App = () => {
+  const [perPage, setPerPage] = useState(50);
   return (
     <div>
       <Header />
 
-      <LeaderBoard />
+      <LeaderBoard perPage={perPage} />
 
-      <Footer />
+      <Footer perPage={perPage} setPerPage={setPerPage} />
     </div>
   );
 };

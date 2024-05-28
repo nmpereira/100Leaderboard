@@ -6,7 +6,7 @@ import LeaderBoard from "./components/LeaderBoard/LeaderBoard";
 const App = () => {
   const [perPage, setPerPage] = useState(50);
   return (
-    <div>
+    <div className="flex flex-col h-screen">
       <Header />
 
       <LeaderBoard perPage={perPage} />

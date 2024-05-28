@@ -32,7 +32,7 @@ const LeaderBoard = ({ perPage }: LeaderBoardProps) => {
   }, [perPage]);
 
   useEffect(() => {
-    if (width && width < 784) {
+    if (width && width < 796) {
       setLeardBoardCutOff(3);
     } else {
       setLeardBoardCutOff(5);
@@ -40,7 +40,7 @@ const LeaderBoard = ({ perPage }: LeaderBoardProps) => {
   }, [width]);
   return (
     <>
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center mb-auto">
         {/* Top 5 users */}
         {users.length > 0 ? (
           <LeaderBoardBar users={users.slice(0, leardBoardCutOff)} />

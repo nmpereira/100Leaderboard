@@ -11,7 +11,7 @@ const LeaderBoardTable = ({
   leardBoardCutOff,
 }: LeaderBoardTableProps) => {
   return users.length > 0 ? (
-    <div className="overflow-x-auto h-3/4 w-9/12 max-w-5xl border-2 rounded-md border-gray-700">
+    <div className="w-9/12 max-w-5xl border-2 rounded-md border-gray-700">
       <table className="table table-pin-rows table-pin-cols">
         <thead>
           <tr>

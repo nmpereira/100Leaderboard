@@ -14,7 +14,7 @@
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "styled-components": "^6.1.11"
+    "use-window-size-v2": "^2.2.5"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",

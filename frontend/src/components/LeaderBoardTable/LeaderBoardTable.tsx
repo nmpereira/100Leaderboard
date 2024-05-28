@@ -11,8 +11,8 @@ const LeaderBoardTable = ({
   leardBoardCutOff,
 }: LeaderBoardTableProps) => {
   return users.length > 0 ? (
-    <div className="overflow-x-auto">
-      <table className="table">
+    <div className="overflow-x-auto h-3/4 w-9/12 max-w-5xl border-2 rounded-md border-gray-700">
+      <table className="table table-pin-rows table-pin-cols">
         <thead>
           <tr>
             <th>Rank</th>
@@ -22,15 +22,19 @@ const LeaderBoardTable = ({
         </thead>
         <tbody>
           {users.slice(leardBoardCutOff).map((user, index) => (
-            <tr key={user.disc_id}>
-              <td>{index + leardBoardCutOff + 1}</td>
+            <tr key={user.disc_id} className="hover">
+              <th className="text-center">#{index + leardBoardCutOff + 1}</th>
               <td>
                 <div className="flex items-center gap-3">
-                  <UserImage user={user} size={48} />
+                  <UserImage
+                    user={user}
+                    size={48}
+                    rank={index + leardBoardCutOff + 1}
+                  />
                   {user.username}
                 </div>
               </td>
-              <td>{user.total_message_count ?? "N/A"}</td>
+              <td>{user.total_message_count ?? 0}</td>
             </tr>
           ))}
         </tbody>

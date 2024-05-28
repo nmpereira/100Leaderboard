@@ -3,9 +3,10 @@ import { UserReturn } from "../../../../backend/src/types/UserTypes";
 interface UserImageProps {
   user: UserReturn;
   size: number;
+  rank: number;
 }
 
-const UserImage = ({ user, size = 48 }: UserImageProps) => {
+const UserImage = ({ user, size = 48, rank }: UserImageProps) => {
   const handleError = (
     event: React.SyntheticEvent<HTMLImageElement, Event>
   ) => {
@@ -15,8 +16,13 @@ const UserImage = ({ user, size = 48 }: UserImageProps) => {
   };
   return (
     <>
-      <div className="avatar">
-        <div className="mask mask-squircle w-12 h-12 mr-2">
+      <div className="avatar flex flex-col items-center">
+        {rank === 1 && (
+          <span role="img" aria-label="crown">
+            👑
+          </span>
+        )}
+        <div className="mask mask-squircle w-12 h-12 mx-2">
           {user.avatar ? (
             <img
               src={`
